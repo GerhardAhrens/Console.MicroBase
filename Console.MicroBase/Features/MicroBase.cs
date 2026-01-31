@@ -79,7 +79,7 @@
 
         public bool IsRow(Func<T, bool> predicate)
         {
-            return Rows.Count(predicate) > 0 ? true : false;
+            return Rows.Any(predicate);
         }
 
 
@@ -115,7 +115,7 @@
 
         public Table<T> CreateTable<T>(string name) where T : IEntity
         {
-            _lock.EnterWriteLock();
+            this._lock.EnterWriteLock();
 
             try
             {
