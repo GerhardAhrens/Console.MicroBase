@@ -97,6 +97,11 @@
             }
         }
 
+        public IReadOnlyList<T> GetAll(Func<T, bool> predicate)
+        {
+            return Rows.Where(predicate).ToList();
+        }
+
         public IReadOnlyList<T> GetAll() => Rows;
 
         public T? GetById(int id) => Rows.FirstOrDefault(x => x.Id == id);
@@ -269,23 +274,23 @@
 
     public static class CryptoService
     {
-        private const int SaltSize = 16;
-        private const int NonceSize = 12;
-        private const int TagSize = 16;
-        private const int KeySize = 32;
+        private const int SALTSIZE = 16;
+        private const int NONCESIZE = 12;
+        private const int TAGSIZE = 16;
+        private const int KEYSIZE = 32;
 
         public static byte[] Encrypt(string plainText, string password)
         {
-            byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
-            byte[] nonce = RandomNumberGenerator.GetBytes(NonceSize);
+            byte[] salt = RandomNumberGenerator.GetBytes(SALTSIZE);
+            byte[] nonce = RandomNumberGenerator.GetBytes(NONCESIZE);
 
             byte[] key = DeriveKey(password, salt);
 
             byte[] plaintextBytes = Encoding.UTF8.GetBytes(plainText);
             byte[] ciphertext = new byte[plaintextBytes.Length];
-            byte[] tag = new byte[TagSize];
+            byte[] tag = new byte[TAGSIZE];
 
-            using var aes = new AesGcm(key);
+            using var aes = new AesGcm(key, TAGSIZE);
             aes.Encrypt(nonce, plaintextBytes, ciphertext, tag);
 
             var result = new byte[
@@ -308,16 +313,15 @@
 
         public static string Decrypt(byte[] encryptedData, string password)
         {
-            byte[] salt = encryptedData[..SaltSize];
-            byte[] nonce = encryptedData[SaltSize..(SaltSize + NonceSize)];
-            byte[] tag = encryptedData[^TagSize..];
-            byte[] ciphertext = encryptedData[
-                (SaltSize + NonceSize)..^TagSize];
+            byte[] salt = encryptedData[..SALTSIZE];
+            byte[] nonce = encryptedData[SALTSIZE..(SALTSIZE + NONCESIZE)];
+            byte[] tag = encryptedData[^TAGSIZE..];
+            byte[] ciphertext = encryptedData[(SALTSIZE + NONCESIZE)..^TAGSIZE];
 
             byte[] key = DeriveKey(password, salt);
             byte[] plaintext = new byte[ciphertext.Length];
 
-            using var aes = new AesGcm(key);
+            using var aes = new AesGcm(key, TAGSIZE);
             aes.Decrypt(nonce, ciphertext, tag, plaintext);
 
             return Encoding.UTF8.GetString(plaintext);
@@ -330,7 +334,7 @@
             byte[] hash = hmac.ComputeHash(
                 Encoding.UTF8.GetBytes(password));
 
-            return hash[..KeySize];
+            return hash[..KEYSIZE];
         }
     }
 }
