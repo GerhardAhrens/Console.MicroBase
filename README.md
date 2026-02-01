@@ -94,4 +94,6 @@ foreach (var u in users.GetAll(x => x.Department == "Test"))
     Console.WriteLine($"{u.Name}; {u.UserName}; {u.Department}; {u.IsActive}");
 }
 ```
-
+\
+Dieses Projekt ist eher als Lern-Projekt zuum Thema Datenbanken in .NET gedacht und weniger für den produktiven Einsatz geeignet. Für professionelle Anwendungen sollten etablierte Datenbanklösungen in Betracht gezogen werden.
+Trotzdem hoffe ich, dass MicroBase als nützliches Werkzeug für Entwickler dient, die eine einfache und leichtgewichtige Datenbanklösung für ihre Desktop-Anwendungen (z.B. für Konfiguratione oder zum temporären Zwischenspeichern von Daten) suchen.
